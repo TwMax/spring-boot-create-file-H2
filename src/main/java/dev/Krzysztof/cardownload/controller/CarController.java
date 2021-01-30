@@ -1,7 +1,7 @@
 package dev.Krzysztof.cardownload.controller;
 
-import dev.Krzysztof.cardownload.exception.BadRequestsException;
-import dev.Krzysztof.cardownload.services.FileService;
+import com.opencsv.exceptions.CsvValidationException;
+import dev.Krzysztof.cardownload.services.FileCarDataService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,22 +13,17 @@ import java.io.IOException;
 @RequestMapping("/v1/cars")
 public class CarController {
 
-    private FileService fileService;
+    private FileCarDataService fileCarDataService;
 
-    public CarController(FileService fileService) {
-        this.fileService = fileService;
+    public CarController(FileCarDataService fileCarDataService) {
+        this.fileCarDataService = fileCarDataService;
     }
 
     @RequestMapping(path = "/fileupload", method = RequestMethod.POST)
     public ResponseEntity<String> processFile(@RequestParam("color") String color,
-                                              @RequestParam("file") MultipartFile file) throws IOException {
-
-        if (color.isEmpty() || file.isEmpty()) {
-            throw new BadRequestsException();
-        }
-
+                                              @RequestParam("file") MultipartFile file) throws IOException, CsvValidationException {
         try {
-            fileService.save(file, color);
+            fileCarDataService.saveCarData(file, color);
         } catch (RuntimeException | IOException e) {
             throw e;
         }
