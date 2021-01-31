@@ -12,7 +12,7 @@ import java.io.Reader;
 @Service
 public class OpenCSVFileServicesImpl implements OpenCSVFileServices {
 
-    public CSVReader getEndDecode (MultipartFile file) throws IOException {
+    public CSVReader getEndDecode(MultipartFile file) throws IOException {
         Reader reader = new InputStreamReader(file.getInputStream(), "Cp1250");
         return new CSVReader(reader);
     }

@@ -2,7 +2,7 @@ package dev.Krzysztof.cardownload.controller;
 
 import com.opencsv.exceptions.CsvValidationException;
 import dev.Krzysztof.cardownload.services.FileCarDataService;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,14 +15,14 @@ import java.io.IOException;
 
 @RestController
 @RequestMapping("/v1/cars")
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class CarController {
 
-    private FileCarDataService fileCarDataService;
+    private final FileCarDataService fileCarDataService;
 
     @RequestMapping(path = "/fileupload", method = RequestMethod.POST)
-    public ResponseEntity<String> processFile(@RequestParam("color") String color,
-                                              @RequestParam("file") MultipartFile file) throws IOException, CsvValidationException {
+    public ResponseEntity<String> processFile(@RequestParam() String color,
+                                              @RequestParam() MultipartFile file) throws IOException, CsvValidationException {
 
         fileCarDataService.saveCarData(file, color);
 
