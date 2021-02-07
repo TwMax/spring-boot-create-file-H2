@@ -12,7 +12,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockMultipartFile;
 
 import java.io.IOException;
@@ -24,9 +23,12 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-@SpringBootTest
+
 @ExtendWith(MockitoExtension.class)
 class FileCarDataServiceImplTest {
+
+    public static final String ZOLTY = "żółty";
+    public static final String CZARNY = "czarny";
 
     @Mock
     private CarRepository carRepository;
@@ -51,10 +53,10 @@ class FileCarDataServiceImplTest {
     @Test()
     void shouldExceptionValidatorOfIncomingDataFileIsNull() {
         // given
-        doThrow(CarIncomingException.class).when(carValidator).validationOfIncomingData(null, "żółty");
+        doThrow(CarIncomingException.class).when(carValidator).validationOfIncomingData(null, ZOLTY);
 
         // then
-        assertThrows(CarIncomingException.class, () -> carValidator.validationOfIncomingData(null, "żółty"));
+        assertThrows(CarIncomingException.class, () -> carValidator.validationOfIncomingData(null, ZOLTY));
     }
 
 
@@ -70,14 +72,13 @@ class FileCarDataServiceImplTest {
     @Test
     void shouldParameterColorNotBeCaseSensitive() {
         // given
-        final String COLOR = "Żółty";
-        Car car1 = Car.builder().color("Żółty").dateOfPurchase(null).name(null).id(null).build();
-        Car car2 = Car.builder().color("żółty").dateOfPurchase(null).name(null).id(null).build();
+        Car car1 = Car.builder().color(ZOLTY).dateOfPurchase(null).name(null).id(null).build();
+        Car car2 = Car.builder().color("ŻółTY").dateOfPurchase(null).name(null).id(null).build();
         Car car3 = Car.builder().color("żÓłTy").dateOfPurchase(null).name(null).id(null).build();
         List<Car> cars = Arrays.asList(car1, car2, car3);
 
         // when
-        List<Car> carList = fileCarDataService.filteredCarDataByColor(COLOR, cars);
+        List<Car> carList = fileCarDataService.filteredCarDataByColor(ZOLTY, cars);
 
         //then
         assertEquals(carList.size(), cars.size());
@@ -87,8 +88,8 @@ class FileCarDataServiceImplTest {
     void shouldParameterColorNotBeFound() {
         // given
         final String COLOR = "Zielony";
-        Car car1 = Car.builder().color("Żółty").dateOfPurchase(null).name(null).id(null).build();
-        Car car2 = Car.builder().color("żółty").dateOfPurchase(null).name(null).id(null).build();
+        Car car1 = Car.builder().color(ZOLTY).dateOfPurchase(null).name(null).id(null).build();
+        Car car2 = Car.builder().color(ZOLTY).dateOfPurchase(null).name(null).id(null).build();
         Car car3 = Car.builder().color("żÓłTy").dateOfPurchase(null).name(null).id(null).build();
         List<Car> cars = Arrays.asList(car1, car2, car3);
 
@@ -96,21 +97,21 @@ class FileCarDataServiceImplTest {
         List<Car> carList = fileCarDataService.filteredCarDataByColor(COLOR, cars);
 
         //then
-        assertEquals(carList.size(), 0);
+        assertEquals(0,carList.size());
     }
 
     @Test
     void shouldMapperNextRecordIsTrue() throws CsvValidationException {
         //given
-        String[] nextRecord = {"1", "Ford Focus", "01.12.2005", "Czarny"};
+        String[] nextRecord = {"1", "Ford Focus", "01.12.2005", CZARNY};
 
         //when
         Car car = fileCarDataService.mapToCar(nextRecord);
 
         //then
         assertNull(car.getId());
-        assertEquals(car.getName(), "Ford Focus");
-        assertEquals(car.getColor(), "Czarny");
+        assertEquals("Ford Focus", car.getName());
+        assertEquals(CZARNY, car.getColor());
     }
 
     @Test
@@ -122,7 +123,7 @@ class FileCarDataServiceImplTest {
         LocalDate localDate = CarUtil.parseStringToDate(date);
 
         //then
-        assertEquals(localDate.toString(), "2005-12-01");
+        assertEquals("2005-12-01", localDate.toString());
     }
 
     @Test
@@ -155,5 +156,21 @@ class FileCarDataServiceImplTest {
         assertEquals(returnedCars.get(0).getColor(),cars.get(0).getColor());
         assertEquals(returnedCars.get(0).getDateOfPurchase(),cars.get(0).getDateOfPurchase());
         assertEquals(returnedCars.get(0).getName(),cars.get(0).getName());
+    }
+
+
+    @Test
+    void shouldReturnAnEmptyListIfItNotFindAColor() {
+        //given
+        final String color = "xxx";
+        Car car1 = Car.builder().id(1L).color("Zielony").dateOfPurchase(CarUtil.parseStringToDate("10.02.2010")).name("Ford fiesta").build();
+        List<Car> cars = Collections.singletonList(car1);
+
+        //when
+        List<Car> filteredCars = fileCarDataService.filteredCarDataByColor(color, cars);
+
+        //then
+        assertEquals(0,filteredCars.size());
+
     }
 }

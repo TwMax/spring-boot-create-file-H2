@@ -12,7 +12,7 @@ public class CarValidator {
     public void validationOfIncomingData(MultipartFile file, String color) {
 
         if(Objects.isNull(file) || Objects.isNull(color)) {
-            throw CarIncomingException.getCarIncomingException();
+            throw new CarIncomingException();
         }
 
     }

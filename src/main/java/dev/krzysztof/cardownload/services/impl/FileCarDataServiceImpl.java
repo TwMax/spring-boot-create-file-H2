@@ -39,7 +39,7 @@ public class FileCarDataServiceImpl implements FileCarDataService {
     }
 
 
-    public List<Car> createdCarsFrom(CSVReader csvReader) throws IOException, CsvValidationException {
+    public List<Car> createdCarsFrom(CSVReader csvReader) throws CsvValidationException, IOException {
         List<Car> cars = new ArrayList<>();
 
 
@@ -54,7 +54,7 @@ public class FileCarDataServiceImpl implements FileCarDataService {
         return cars;
     }
 
-    private void skipTheFirstRecords(CSVReader csvReader) throws IOException, CsvValidationException {
+    private void skipTheFirstRecords(CSVReader csvReader) throws CsvValidationException, IOException {
         csvValidator.validationOfCsvFile(csvReader.readNext());
         csvReader.skip(1);
     }
